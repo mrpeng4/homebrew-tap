@@ -8,7 +8,7 @@ class Ac1869 < Formula
   depends_on "python@3.12"
 
   def install
-    libexec.install "main.py", "widgets.py", "songs_path.py",
+    libexec.install "main.py", "widgets.py", "songs_path.py", "import_system.py",
                     "turning_pages-ui-toggle-off-confirmation-608627.mp3"
 
     (bin/"1869ac").write <<~SH
@@ -26,19 +26,20 @@ class Ac1869 < Formula
 
       mkdir -p "$DATA"
 
-      # Refresh the app code on every launch (so brew upgrades take effect)...
+      # Refresh application code on launch
       install -m 644 "$SRC/main.py" "$DATA/main.py"
       install -m 644 "$SRC/widgets.py" "$DATA/widgets.py"
+      install -m 644 "$SRC/import_system.py" "$DATA/import_system.py"
       install -m 644 "$SRC/turning_pages-ui-toggle-off-confirmation-608627.mp3" "$DATA/turning_pages-ui-toggle-off-confirmation-608627.mp3"
 
-      # ...but never overwrite the user's songs_path.py
+      # Preserve user's playlists file
       if [ ! -f "$DATA/songs_path.py" ]; then
         install -m 644 "$SRC/songs_path.py" "$DATA/songs_path.py"
       fi
 
-      # One-time (or after a python upgrade) private environment setup
+      # Setup private venv if missing or python environment changed
       if ! "$VENV/bin/python" -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('vlc') and importlib.util.find_spec('pygame') else 1)" >/dev/null 2>&1; then
-        echo "First run: setting things up (one time only)..."
+        echo "Setting up dependencies..."
         "$PYTHON" -m venv --clear "$VENV"
         "$VENV/bin/pip" install --quiet python-vlc pygame
       fi
@@ -46,18 +47,19 @@ class Ac1869 < Formula
       cd "$DATA"
       exec "$VENV/bin/python" main.py "$@"
     SH
+
     chmod 0755, bin/"1869ac"
   end
 
   def caveats
     <<~EOS
-      1869ac needs VLC. If you don't have it:
+      1869ac requires VLC. If you don't have it installed:
         brew install --cask vlc
 
-      Run it with:
+      Run the player with:
         1869ac
 
-      Your playlists live in:
+      Your playlists file lives in:
         ~/Library/Application Support/1869AC/songs_path.py
     EOS
   end
