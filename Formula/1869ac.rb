@@ -1,4 +1,4 @@
-class Ac1869 < Formula
+class OneEightSixNineAc < Formula
   desc "Terminal music player (run it with the 1869ac command)"
   homepage "https://github.com/mrpeng4/1869AC"
   url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.2.tar.gz"
@@ -31,7 +31,7 @@ class Ac1869 < Formula
       install -m 644 "$SRC/main.py" "$DATA/main.py"
       install -m 644 "$SRC/widgets.py" "$DATA/widgets.py"
       install -m 644 "$SRC/import_system.py" "$DATA/import_system.py"
-      
+
       if [ -f "$SRC/turning_pages-ui-toggle-off-confirmation-608627.mp3" ]; then
         install -m 644 "$SRC/turning_pages-ui-toggle-off-confirmation-608627.mp3" "$DATA/turning_pages-ui-toggle-off-confirmation-608627.mp3"
       fi
