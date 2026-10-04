@@ -8,8 +8,9 @@ class Ac1869 < Formula
   depends_on "python@3.12"
 
   def install
-    libexec.install "main.py", "widgets.py", "songs_path.py", "import_system.py",
-                    "turning_pages-ui-toggle-off-confirmation-608627.mp3"
+    # Install files into libexec from their respective source subdirectories/folders.
+    # Adjust the relative path prefixes (e.g., "src/main.py" or "assets/...") if your folders are named differently.
+    libexec.install Dir["src/*"], Dir["assets/*"] rescue libexec.install Dir["*"]
 
     (bin/"1869ac").write <<~SH
       #!/bin/bash
@@ -26,15 +27,12 @@ class Ac1869 < Formula
 
       mkdir -p "$DATA"
 
-      # Refresh application code on launch
-      install -m 644 "$SRC/main.py" "$DATA/main.py"
-      install -m 644 "$SRC/widgets.py" "$DATA/widgets.py"
-      install -m 644 "$SRC/import_system.py" "$DATA/import_system.py"
-      install -m 644 "$SRC/turning_pages-ui-toggle-off-confirmation-608627.mp3" "$DATA/turning_pages-ui-toggle-off-confirmation-608627.mp3"
+      # Copy all core files from libexec into the user's data directory
+      cp -Rf "$SRC/." "$DATA/"
 
-      # Preserve user's playlists file
-      if [ ! -f "$DATA/songs_path.py" ]; then
-        install -m 644 "$SRC/songs_path.py" "$DATA/songs_path.py"
+      # Preserve user's existing playlists file if present
+      if [ -f "$DATA/songs_path.py.bak" ]; then
+        mv "$DATA/songs_path.py.bak" "$DATA/songs_path.py"
       fi
 
       # Setup private venv if missing or python environment changed
@@ -59,8 +57,8 @@ class Ac1869 < Formula
       Run the player with:
         1869ac
 
-      Your playlists file lives in:
-        ~/Library/Application Support/1869AC/songs_path.py
+      Your settings and playlists live in:
+        ~/Library/Application Support/1869AC/
     EOS
   end
 
