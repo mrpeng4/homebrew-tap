@@ -1,4 +1,4 @@
-class OneEightSixNineAc < Formula
+class Ac1869 < Formula
   desc "Terminal music player (run it with the 1869ac command)"
   homepage "https://github.com/mrpeng4/1869AC"
   url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.2.tar.gz"
@@ -8,10 +8,12 @@ class OneEightSixNineAc < Formula
   depends_on "python@3.12"
 
   def install
+    # Pulls the files from your nested macOS-code directory
     mac_code_dir = "mrpeng-mac-original-donot-alter-ANYTHING/macOS-code"
 
     libexec.install Dir["#{mac_code_dir}/*"]
 
+    # This ensures the terminal command you type to run the player is exactly `1869ac`
     (bin/"1869ac").write <<~SH
       #!/bin/bash
       set -e
