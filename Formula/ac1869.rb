@@ -1,19 +1,17 @@
 class Ac1869 < Formula
   desc "Terminal music player (run it with the 1869ac command)"
   homepage "https://github.com/mrpeng4/1869AC"
-  url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.2.tar.gz"
+  url "https://github.com/mrpeng4/homebrew-tap/archive/refs/tags/v1.2.tar.gz"
   sha256 "845b495cd3dae00a640181c5fc8560509a3a969f14845da110efeba318e1e008"
+  version "1.2"
 
   depends_on :macos
   depends_on "python@3.12"
 
   def install
-    # Pulls the files from your nested macOS-code directory
-    mac_code_dir = "mrpeng-mac-original-donot-alter-ANYTHING/macOS-code"
+    # Pull the app files from the tap repo's app/ folder
+    libexec.install Dir["app/*"]
 
-    libexec.install Dir["#{mac_code_dir}/*"]
-
-    # This ensures the terminal command you type to run the player is exactly `1869ac`
     (bin/"1869ac").write <<~SH
       #!/bin/bash
       set -e
@@ -29,21 +27,17 @@ class Ac1869 < Formula
 
       mkdir -p "$DATA"
 
-      # Copy/Update application code into user's Application Support directory
-      install -m 644 "$SRC/main.py" "$DATA/main.py"
-      install -m 644 "$SRC/widgets.py" "$DATA/widgets.py"
-      install -m 644 "$SRC/import_system.py" "$DATA/import_system.py"
+      # Copy app files into the user's folder on every launch
+      for f in main.py widgets.py import_system.py turning_pages-ui-toggle-off-confirmation-608627.mp3; do
+        install -m 644 "$SRC/$f" "$DATA/$f"
+      done
 
-      if [ -f "$SRC/turning_pages-ui-toggle-off-confirmation-608627.mp3" ]; then
-        install -m 644 "$SRC/turning_pages-ui-toggle-off-confirmation-608627.mp3" "$DATA/turning_pages-ui-toggle-off-confirmation-608627.mp3"
-      fi
-
-      # Preserve user's playlists file
-      if [ ! -f "$DATA/songs_path.py" ] && [ -f "$SRC/songs_path.py" ]; then
+      # Preserve the user's playlists file
+      if [ ! -f "$DATA/songs_path.py" ]; then
         install -m 644 "$SRC/songs_path.py" "$DATA/songs_path.py"
       fi
 
-      # Setup private venv if missing or python environment changed
+      # Set up private venv if missing or broken
       if ! "$VENV/bin/python" -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('vlc') and importlib.util.find_spec('pygame') else 1)" >/dev/null 2>&1; then
         echo "Setting up dependencies..."
         "$PYTHON" -m venv --clear "$VENV"
@@ -54,7 +48,7 @@ class Ac1869 < Formula
       exec "$VENV/bin/python" main.py "$@"
     SH
 
-    chmod 0755, bin/"1869ac"
+    (bin/"1869ac").chmod 0755
   end
 
   def caveats
