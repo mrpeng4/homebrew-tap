@@ -1,7 +1,7 @@
 class Ac1869 < Formula
   desc "Terminal music player (run it with the 1869ac command)"
   homepage "https://github.com/mrpeng4/1869AC"
-  url "https://github.com/mrpeng4/homebrew-tap/archive/refs/tags/v1.2.tar.gz"
+  url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.2.tar.gz"
   sha256 "845b495cd3dae00a640181c5fc8560509a3a969f14845da110efeba318e1e008"
   version "1.2"
 
@@ -9,8 +9,8 @@ class Ac1869 < Formula
   depends_on "python@3.12"
 
   def install
-    # Pull the app files from the tap repo's app/ folder
-    libexec.install Dir["app/*"]
+    # Pull the app files from the macOS-code folder of the 1869AC repo
+    libexec.install Dir["mrpeng-mac-original-donot-alter-ANYTHING/macOS-code/*"]
 
     (bin/"1869ac").write <<~SH
       #!/bin/bash
