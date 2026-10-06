@@ -1,15 +1,14 @@
 class Ac1869 < Formula
   desc "Terminal music player (run it with the 1869ac command)"
   homepage "https://github.com/mrpeng4/1869AC"
-  url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.2.tar.gz"
-  sha256 "845b495cd3dae00a640181c5fc8560509a3a969f14845da110efeba318e1e008"
-  version "1.2"
+  url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.3.tar.gz"
+  sha256 "6cd466d4d54235e18eaf92b7ea6f4faf4728c474e2e6461d04e3e4a95f5d8320"
+  version "1.3"
 
   depends_on :macos
   depends_on "python@3.12"
 
   def install
-    # Pull the app files from the macOS-code folder of the 1869AC repo
     libexec.install Dir["mrpeng-mac-original-donot-alter-ANYTHING/macOS-code/*"]
 
     (bin/"1869ac").write <<~SH
@@ -27,9 +26,13 @@ class Ac1869 < Formula
 
       mkdir -p "$DATA"
 
-      # Copy app files into the user's folder on every launch
-      for f in main.py widgets.py import_system.py turning_pages-ui-toggle-off-confirmation-608627.mp3; do
-        install -m 644 "$SRC/$f" "$DATA/$f"
+      # Copy every app file (code, sounds, help text) into the user's folder,
+      # except songs_path.py which holds the user's playlists
+      for f in "$SRC"/*; do
+        name="$(basename "$f")"
+        if [ "$name" != "songs_path.py" ] && [ "$name" != "requirements.txt" ]; then
+          install -m 644 "$f" "$DATA/$name"
+        fi
       done
 
       # Preserve the user's playlists file
