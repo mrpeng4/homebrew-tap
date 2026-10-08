@@ -1,9 +1,9 @@
 class Ac1869 < Formula
   desc "Terminal music player (run it with the 1869ac command)"
   homepage "https://github.com/mrpeng4/1869AC"
-  url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.4.1.tar.gz"
-  sha256 "93ebc5de56522da0b76ae24cb4f44464f1a79fdf4762c19397e07ee0d3f0ab6a"
-  version "1.4.1"
+  url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.4.2.tar.gz"
+  sha256 "3a3f4d68bd5fcb1f9c22e9dcdca7eb7c7e091141610266802744cd5d553975f0"
+  version "1.4.2"
 
   depends_on :macos
   depends_on "python@3.12"
