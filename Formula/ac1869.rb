@@ -1,9 +1,9 @@
 class Ac1869 < Formula
   desc "Terminal music player (run it with the 1869ac command)"
   homepage "https://github.com/mrpeng4/1869AC"
-  url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.3.tar.gz"
-  sha256 "6cd466d4d54235e18eaf92b7ea6f4faf4728c474e2e6461d04e3e4a95f5d8320"
-  version "1.3"
+  url "https://github.com/mrpeng4/1869AC/archive/refs/tags/v1.4.tar.gz"
+  sha256 "0c91495779e49214e2cad5e394533f13a920494725912d55d6f3e69046d46612"
+  version "1.4"
 
   depends_on :macos
   depends_on "python@3.12"
@@ -26,19 +26,24 @@ class Ac1869 < Formula
 
       mkdir -p "$DATA"
 
-      # Copy every app file (code, sounds, help text) into the user's folder,
-      # except songs_path.py which holds the user's playlists
+      # Files that belong to the user and must never be overwritten
+      USER_FILES="songs_path.py last_played.json"
+
+      # Refresh app files (code, sounds, help text) on every launch
       for f in "$SRC"/*; do
         name="$(basename "$f")"
-        if [ "$name" != "songs_path.py" ] && [ "$name" != "requirements.txt" ]; then
-          install -m 644 "$f" "$DATA/$name"
-        fi
+        case " $USER_FILES requirements.txt " in
+          *" $name "*) continue ;;
+        esac
+        install -m 644 "$f" "$DATA/$name"
       done
 
-      # Preserve the user's playlists file
-      if [ ! -f "$DATA/songs_path.py" ]; then
-        install -m 644 "$SRC/songs_path.py" "$DATA/songs_path.py"
-      fi
+      # Seed the user's files only if they don't exist yet
+      for name in $USER_FILES; do
+        if [ ! -f "$DATA/$name" ] && [ -f "$SRC/$name" ]; then
+          install -m 644 "$SRC/$name" "$DATA/$name"
+        fi
+      done
 
       # Set up private venv if missing or broken
       if ! "$VENV/bin/python" -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('vlc') and importlib.util.find_spec('pygame') else 1)" >/dev/null 2>&1; then
@@ -62,8 +67,8 @@ class Ac1869 < Formula
       Run the player with:
         1869ac
 
-      Your playlists file lives in:
-        ~/Library/Application Support/1869AC/songs_path.py
+      Your playlists and last-played data live in:
+        ~/Library/Application Support/1869AC/
     EOS
   end
 
