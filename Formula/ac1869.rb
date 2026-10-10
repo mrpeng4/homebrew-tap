@@ -4,7 +4,6 @@ class Ac1869 < Formula
   url "https://github.com/1869AC/1869AC/archive/refs/tags/v2.tar.gz"
   sha256 "83ed06ac2fa02246f9206459456a1a18e06e631fb73db891f2426a7426d34b56"
 
-  depends_on :macos
   depends_on "python@3.12"
 
   def install
@@ -18,15 +17,24 @@ class Ac1869 < Formula
       #!/bin/bash
       set -e
       SRC="#{libexec}"
-      DATA="$HOME/Library/Application Support/1869AC"
-      VENV="$DATA/venv"
       PYTHON="#{Formula["python@3.12"].opt_bin}/python3.12"
 
-      if [ ! -d "/Applications/VLC.app" ] && [ ! -d "$HOME/Applications/VLC.app" ]; then
-        echo "VLC is required. Install it with: brew install --cask vlc"
-        exit 1
+      # OS-specific data folder and VLC check
+      if [ "$(uname)" = "Darwin" ]; then
+        DATA="$HOME/Library/Application Support/1869AC"
+        if [ ! -d "/Applications/VLC.app" ] && [ ! -d "$HOME/Applications/VLC.app" ]; then
+          echo "VLC is required. Install it with: brew install --cask vlc"
+          exit 1
+        fi
+      else
+        DATA="${XDG_DATA_HOME:-$HOME/.local/share}/1869AC"
+        if ! command -v vlc >/dev/null 2>&1; then
+          echo "VLC is required. Install it with: sudo apt install vlc"
+          exit 1
+        fi
       fi
 
+      VENV="$DATA/venv"
       mkdir -p "$DATA"
 
       # Files that belong to the user and must never be overwritten
@@ -63,16 +71,31 @@ class Ac1869 < Formula
   end
 
   def caveats
-    <<~EOS
-      1869ac requires VLC. If you don't have it installed:
-        brew install --cask vlc
+    if OS.mac?
+      <<~EOS
+        1869ac requires VLC. If you don't have it installed:
+          brew install --cask vlc
 
-      Run the player with:
-        1869ac
+        Run the player with:
+          1869ac
 
-      Your playlists and last-played data live in:
-        ~/Library/Application Support/1869AC/
-    EOS
+        Your playlists and last-played data live in:
+          ~/Library/Application Support/1869AC/
+      EOS
+    else
+      <<~EOS
+        1869ac requires VLC. If you don't have it installed:
+          sudo apt install vlc
+
+        Run the player with:
+          1869ac
+
+        Your playlists and last-played data live in:
+          ~/.local/share/1869AC/
+
+        On WSL, audio needs WSLg (Windows 11, or Windows 10 with an updated WSL).
+      EOS
+    end
   end
 
   test do
