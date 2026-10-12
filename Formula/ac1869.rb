@@ -29,7 +29,14 @@ class Ac1869 < Formula
       else
         DATA="${XDG_DATA_HOME:-$HOME/.local/share}/1869AC"
         if ! command -v vlc >/dev/null 2>&1; then
-          echo "VLC is required. Install it with: sudo apt install vlc"
+          echo "VLC is required."
+          if command -v dnf >/dev/null 2>&1; then
+            echo "Fedora: enable RPM Fusion (https://rpmfusion.org/Configuration), then: sudo dnf install vlc"
+          elif command -v pacman >/dev/null 2>&1; then
+            echo "Install it with: sudo pacman -S vlc"
+          else
+            echo "Install it with: sudo apt install vlc"
+          fi
           exit 1
         fi
       fi
@@ -63,6 +70,13 @@ class Ac1869 < Formula
         "$VENV/bin/pip" install --quiet python-vlc pygame
       fi
 
+      # Make sure libvlc can actually start (catches missing plugins/codecs)
+      if ! "$VENV/bin/python" -c "import vlc, sys; sys.exit(0 if vlc.Instance() else 1)" >/dev/null 2>&1; then
+        echo "VLC is installed but libvlc could not start (missing plugins or codecs?)."
+        echo "Fedora users: install VLC from RPM Fusion, not Flatpak."
+        exit 1
+      fi
+
       cd "$DATA"
       exec "$VENV/bin/python" main.py "$@"
     SH
@@ -85,7 +99,11 @@ class Ac1869 < Formula
     else
       <<~EOS
         1869ac requires VLC. If you don't have it installed:
-          sudo apt install vlc
+          Ubuntu/Mint/Debian: sudo apt install vlc
+          Arch:               sudo pacman -S vlc
+          Fedora:             enable RPM Fusion first (https://rpmfusion.org/Configuration),
+                              then: sudo dnf install vlc
+                              If MP3s won't play: sudo dnf swap ffmpeg-free ffmpeg --allowerasing
 
         Run the player with:
           1869ac
